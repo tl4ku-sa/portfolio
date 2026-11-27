@@ -1,4 +1,3 @@
-S
 // js/map.js - The Shinobi Continent: a living, animated, Naruto-themed canvas map
 (() => {
     const canvas = document.getElementById('worldMapCanvas');
