@@ -1,5 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Category Filter Buttons
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function unfurlSection(section) {
+        if (!section) return;
+        section.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+
+        if (prefersReducedMotion) return;
+
+        section.classList.remove('scroll-unfurling');
+        // Force reflow so clicking the same nav item again replays the animation
+        void section.offsetWidth;
+        section.classList.add('scroll-unfurling');
+
+        window.clearTimeout(section._unfurlTimer);
+        section._unfurlTimer = window.setTimeout(() => {
+            section.classList.remove('scroll-unfurling');
+        }, 650);
+    }
+
+    // 1. Intercept internal anchor links (navbar, mobile menu, hero CTAs)
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+            const targetId = anchor.getAttribute('href');
+            if (!targetId || targetId === '#') return;
+
+            const targetSection = document.querySelector(targetId);
+            if (!targetSection) return;
+
+            e.preventDefault();
+            unfurlSection(targetSection);
+        });
+    });
+
+    // 2. Category Filter Buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     const projectCards = document.querySelectorAll('.project-card');
 
@@ -25,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. Mobile Menu Toggle
+    // 3. Mobile Menu Toggle
     const menuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     const iconOpen = document.getElementById('menuIconOpen');
@@ -49,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Mission Scroll Modal
+    // 4. Mission Scroll Modal
     const modal = document.getElementById('missionModal');
     const closeBtn = document.getElementById('closeModalBtn');
     const modalTitle = document.getElementById('modalTitle');

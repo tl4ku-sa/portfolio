@@ -36,6 +36,71 @@
             }
         }
     </script>
+
+    <style>
+        @keyframes scrollUnfurl {
+            0% {
+                opacity: 0;
+                transform: translateY(18px) scaleY(0.94);
+                clip-path: inset(0 0 88% 0 round 16px);
+            }
+            65% {
+                opacity: 1;
+                clip-path: inset(0 0 2% 0 round 16px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scaleY(1);
+                clip-path: inset(0 0 0% 0 round 16px);
+            }
+        }
+
+        @keyframes scrollBarSweep {
+            0% {
+                transform: scaleX(0);
+                opacity: 0.95;
+            }
+            75% {
+                transform: scaleX(1);
+                opacity: 0.95;
+            }
+            100% {
+                transform: scaleX(1);
+                opacity: 0;
+            }
+        }
+
+        .scroll-unfurling {
+            transform-origin: top center;
+            animation: scrollUnfurl 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .scroll-unfurling::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 1rem;
+            right: 1rem;
+            height: 3px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #f97316, #fbbf24, #22d3ee);
+            box-shadow: 0 0 14px rgba(249, 115, 22, 0.85);
+            transform-origin: left center;
+            animation: scrollBarSweep 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-unfurling,
+            .scroll-unfurling::before {
+                animation: none !important;
+                clip-path: none !important;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-leafBg text-slate-100 font-sans relative overflow-x-hidden antialiased selection:bg-orange-500/30 selection:text-orange-200">
 
@@ -88,7 +153,7 @@
     </nav>
 
     <!-- Hero / About Section -->
-    <section id="about" class="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-24">
+    <section id="about" class="relative max-w-4xl mx-auto px-4 md:px-6 py-12 md:py-20">
         <div class="max-w-3xl">
             <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-mono font-semibold mb-6">
                 <span class="w-2 h-2 rounded-full bg-orange-400 animate-ping"></span>
@@ -137,7 +202,7 @@
     </section>
 
     <!-- Jutsu / Skill Radar Matrix Section -->
-    <section id="skills" class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-20">
+    <section id="skills" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// CHAKRA NATURE &amp; STACK</div>
         <h2 class="font-display text-3xl font-bold mb-3">Technical Proficiency Matrix</h2>
         <p class="text-slate-400 mb-12 max-w-xl">
@@ -175,7 +240,7 @@
     </section>
 
     <!-- Honours & Awards Section (Interactive Timeline View) -->
-    <section id="awards" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
+    <section id="awards" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// SCROLLS &amp; RECOGNITION</div>
         <h2 class="font-display text-3xl font-bold mb-3">Honours &amp; Awards</h2>
         <p class="text-slate-400 mb-14 max-w-xl">
@@ -286,7 +351,7 @@
     </section>
 
     <!-- Academy / Education Section (Timeline View) -->
-    <section id="education" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
+    <section id="education" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// SHINOBI ACADEMY TRAINING</div>
         <h2 class="font-display text-3xl font-bold mb-3">Education</h2>
         <p class="text-slate-400 mb-14 max-w-xl">
@@ -396,7 +461,7 @@
     </section>
 
     <!-- Missions / Projects Section (Interactive Timeline View) -->
-    <section id="projects" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
+    <section id="projects" class="relativemax-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// COMPLETED MISSIONS</div>
         <h2 class="font-display text-3xl font-bold mb-3">Featured Projects</h2>
         <p class="text-slate-400 mb-8">
@@ -552,7 +617,7 @@
     </div>
 
     <!-- Contact Section -->
-    <section id="contact" class="max-w-2xl mx-auto px-4 md:px-6 py-14 md:py-20">
+    <section id="contact" class="relativemax-w-2xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <div class="text-xs font-mono uppercase tracking-widest text-orange-400 text-center mb-2">// DISPATCH A SCROLL</div>
         <h2 class="font-display text-3xl font-bold mb-3 text-center">Get in Touch</h2>
         <p class="text-slate-400 mb-8 text-center">
