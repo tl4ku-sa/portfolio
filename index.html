@@ -40,7 +40,7 @@
     <canvas id="nodeCanvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-45"></canvas>
 
     <!-- Sticky Navigation Bar -->
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-[#0B0F19]/80 border-b border-slate-800/60 px-6 py-4">
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-[#0B0F19]/80 border-b border-slate-800/60 px-4 md:px-6">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <a href="#about" class="font-display text-xl font-bold bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">
                 &lt;w1zz /&gt;
@@ -49,11 +49,12 @@
             <!-- Desktop Navigation Links -->
             <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
                 <a href="#about" class="hover:text-cyan-400 transition">About</a>
+                <a href="#education" class="hover:text-cyan-400 transition">Education</a>
                 <a href="#skills" class="hover:text-cyan-400 transition">Skills</a>
                 <a href="#awards" class="hover:text-cyan-400 transition">Awards</a>
                 <a href="#projects" class="hover:text-cyan-400 transition">Projects</a>
                 <a href="#contact" class="hover:text-cyan-400 transition">Contact</a>
-                <a href="https://github.com/tl4ku" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg border border-slate-700 hover:border-cyan-500/60 text-slate-200 hover:text-cyan-300 transition">
+                <a href="https://github.com/tl4ku-sa" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg border border-slate-700 hover:border-cyan-500/60 text-slate-200 hover:text-cyan-300 transition">
                     GitHub
                 </a>
             </div>
@@ -61,14 +62,14 @@
     </nav>
 
     <!-- Hero / About Section -->
-    <section id="about" class="max-w-6xl mx-auto px-6 py-24 md:py-28">
+    <section id="about" class="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-28">
         <div class="max-w-3xl">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold mb-6">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                 BSc Computer Science &amp; Applied Mathematics · Wits
             </div>
 
-            <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
+            <h1 class="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
                 Tlakusani Shibambu — <span class="bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">ML Ensembles, Optimization</span> &amp; Code.
             </h1>
 
@@ -110,7 +111,7 @@
     </section>
 
     <!-- Skill Radar Matrix Section -->
-    <section id="skills" class="max-w-6xl mx-auto px-6 py-24">
+    <section id="skills" class="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <h2 class="font-display text-3xl font-bold mb-3">Technical Proficiency Matrix</h2>
         <p class="text-slate-400 mb-12 max-w-xl">
             How my current focus balances across machine learning, mathematical optimization, algorithms, and software engineering.
@@ -150,17 +151,17 @@
     
 
     <!-- Honours & Awards Section (Interactive Timeline View) -->
-    <section id="awards" class="max-w-4xl mx-auto px-6 py-20">
+    <section id="awards" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <h2 class="font-display text-3xl font-bold mb-3">Honours &amp; Awards</h2>
         <p class="text-slate-400 mb-14 max-w-xl">
             A chronological timeline of competition wins, hackathons, and scholarship recognitions.
         </p>
 
         <!-- Vertical Timeline Track -->
-        <div class="relative border-l-2 border-slate-800/80 ml-4 md:ml-32 space-y-12">
+        <div class="relative border-l-2 border-slate-800/80 ml-2 md:ml-32 space-y-8 md:space-y-12">
             
             <!-- Timeline Item 1 -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <!-- Glowing Node Pin on Timeline -->
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.8)] transition-all duration-300"></div>
                 
@@ -171,10 +172,8 @@
 
                 <!-- Award Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold">
-                            🏆 2nd Place
-                        </span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                        <span class="text-sm font-semibold text-cyan-400">🏆 2nd Place</span>
                         <span class="text-xs font-mono text-slate-400">Team : NullPrior</span>
                     </div>
                     <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">SA Community Challenge: Predictive Insights</h3>
@@ -186,7 +185,7 @@
             </div>
 
             <!-- Timeline Item 2 -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <!-- Glowing Node Pin on Timeline -->
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-violet-400 group-hover:scale-150 group-hover:bg-violet-400 group-hover:shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300"></div>
                 
@@ -197,15 +196,14 @@
 
                 <!-- Award Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-violet-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(139,92,246,0.25)] backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-sm font-semibold">
-                        🏆 1st Place : Individual Solves
-                        </span>
-                        <span class="px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-sm font-semibold">
-                        🏆 3rd Place : Overall
-                        </span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-semibold text-violet-400">
+                            <span>🏆 1st Place : Individual Solves</span>
+                            <span>🏆 3rd Place : Overall</span>
+                        </div>
                         <span class="text-xs font-mono text-slate-400">Team : Phish and Chips</span>
                     </div>
+
                     <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-violet-300 transition-colors">Wits Cyber Hackathon 26'</h3>
                     <p class="text-xs text-slate-400 mb-3">Wits Cyber Hackathon</p>
                     <p class="text-sm text-slate-400 leading-relaxed">
@@ -216,7 +214,7 @@
 
            
             <!-- Timeline Item 4 -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <!-- Glowing Node Pin on Timeline -->
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-violet-400 group-hover:scale-150 group-hover:bg-violet-400 group-hover:shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300"></div>
                 
@@ -227,10 +225,8 @@
 
                 <!-- Award Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-violet-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(139,92,246,0.25)] backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-xs font-semibold">
-                            Scholarship
-                        </span>
+                   <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                        <span class="text-sm font-semibold text-violet-400">🏆 Scholarship</span>
                         <span class="text-xs font-mono text-slate-400">AWS / Udacity</span>
                     </div>
                     <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-violet-300 transition-colors">AWS AI &amp; ML Scholars Program 26'</h3>
@@ -242,7 +238,7 @@
             </div>
 
             <!-- Timeline Item: Oct 2025 Wits Cyber Win -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.8)] transition-all duration-300"></div>
 
                 <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-cyan-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-cyan-300 transition-colors">
@@ -250,11 +246,9 @@
                 </div>
 
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold">
-                            🏆 1st Place
-                        </span>
-                        <span class="text-xs font-mono text-slate-400">Team : 3ncrypt3d </span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                        <span class="text-sm font-semibold text-cyan-400">🏆 1st Place</span>
+                        <span class="text-xs font-mono text-slate-400">Team : 3ncrypt3d</span>
                     </div>
                     <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">Wits Cyber Hackathon 25'</h3>
                     <p class="text-xs text-slate-400 mb-3">Wits University</p>
@@ -265,7 +259,7 @@
             </div>
 
             <!-- Timeline Item 5: Wits Entrance Scholarship -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <!-- Glowing Node Pin on Timeline -->
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.8)] transition-all duration-300"></div>
                 
@@ -276,11 +270,8 @@
 
                 <!-- Award Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-semibold">
-                            Academic Award
-                        </span>
-                        <span class="text-xs font-mono text-slate-400">Wits University</span>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                       <span class="text-sm font-semibold text-cyan-400">🏆 Academic Award</span>
                     </div>
                     <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">Wits University Entrance Scholarship</h3>
                     <p class="text-xs text-slate-400 mb-3">University of the Witwatersrand</p>
@@ -294,17 +285,17 @@
     </section>
 
     <!-- Education Section (Timeline View) -->
-    <section id="education" class="max-w-4xl mx-auto px-6 py-20">
+    <section id="education" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <h2 class="font-display text-3xl font-bold mb-3">Education</h2>
         <p class="text-slate-400 mb-14 max-w-xl">
             Academic foundation in computer science, numerical optimization, and higher mathematics.
         </p>
 
         <!-- Vertical Timeline Track -->
-        <div class="relative border-l-2 border-slate-800/80 ml-4 md:ml-32 space-y-12">
+        <div class="relative border-l-2 border-slate-800/80 ml-2 md:ml-32 space-y-8 md:space-y-12">
 
             <!-- Timeline Item: BSc Computer Science & Applied Math -->
-            <div class="relative pl-8 md:pl-10 group">
+            <div class="relative pl-6 md:pl-10 group">
                 <!-- Glowing Node Pin on Timeline -->
                 <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.8)] transition-all duration-300"></div>
 
@@ -316,7 +307,7 @@
                 <!-- Education Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold">
+                        <span class="text-sm font-semibold">
                             🏆 Undergraduate Degree
                         </span>
                         <span class="text-xs font-mono text-slate-400">Johannesburg, SA</span>
@@ -423,7 +414,7 @@
     </section>
 
     <!-- Projects Section (Interactive Timeline View) -->
-    <section id="projects" class="max-w-4xl mx-auto px-6 py-20">
+    <section id="projects" class="max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <h2 class="font-display text-3xl font-bold mb-3">Featured Projects</h2>
         <p class="text-slate-400 mb-8">
             Filter between machine learning/optimization builds and software engineering projects.
@@ -443,7 +434,7 @@
         </div>
 
         <!-- Vertical Project Timeline Track -->
-        <div class="relative border-l-2 border-slate-800/80 ml-4 md:ml-32 space-y-12">
+         <div class="relative border-l-2 border-slate-800/80 ml-2 md:ml-32 space-y-8 md:space-y-12">
 
             <!-- Project Item 1: Competitive ML -->
             <div class="project-card ml relative pl-8 md:pl-10 group">
@@ -458,7 +449,7 @@
                 <!-- Project Content Card (Elevates & Glows Cyan on Hover) -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold">
+                        <span class="text-sm font-semibold text-cyan-400">
                             🏆 0.89+ CV ROC-AUC
                         </span>
                         <span class="text-xs font-mono text-slate-400">2026</span>
@@ -490,7 +481,7 @@
                 <!-- Project Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.25)] backdrop-blur-sm">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold">
+                        <span class="text-sm font-semibold text-cyan-400">
                             🏆 99.9M+ Score
                         </span>
                         <span class="text-xs font-mono text-slate-400">Entelect Hack&lt;IT&gt;</span>
@@ -521,7 +512,7 @@
                 <!-- Project Content Card (Elevates & Glows Violet on Hover) -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-violet-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(139,92,246,0.25)] backdrop-blur-sm">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-sm font-semibold">
+                        <span class="text-sm font-semibold text-violet-400">
                             🏆 Wits Server Agent
                         </span>
                         <span class="text-xs font-mono text-slate-400">2025</span>
@@ -552,7 +543,7 @@
                 <!-- Project Content Card -->
                 <div class="p-6 rounded-xl bg-cardBg border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-violet-500/60 group-hover:shadow-[0_10px_30px_-10px_rgba(139,92,246,0.25)] backdrop-blur-sm">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-sm font-semibold">
+                        <span class="text-sm font-semibold text-violet-400">
                             🏆 Internship Capstone
                         </span>
                         <span class="text-xs font-mono text-slate-400">MWR CyberSec</span>
@@ -574,7 +565,7 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="max-w-2xl mx-auto px-6 py-24">
+    <section id="contact" class="max-w-2xl mx-auto px-4 md:px-6 py-14 md:py-20">
         <h2 class="font-display text-3xl font-bold mb-3 text-center">Get in Touch</h2>
         <p class="text-slate-400 mb-8 text-center">
             Want to collaborate on hackathons, ML challenges, or software projects? Drop a message below.
