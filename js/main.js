@@ -3,19 +3,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function unfurlSection(section) {
         if (!section) return;
-        section.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+
+        section.scrollIntoView({
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            block: 'start'
+        });
 
         if (prefersReducedMotion) return;
 
-        section.classList.remove('scroll-unfurling');
-        // Force reflow so clicking the same nav item again replays the animation
+        section.classList.remove('scroll-unrolling-stage');
         void section.offsetWidth;
-        section.classList.add('scroll-unfurling');
+        section.classList.add('scroll-unrolling-stage');
 
         window.clearTimeout(section._unfurlTimer);
         section._unfurlTimer = window.setTimeout(() => {
-            section.classList.remove('scroll-unfurling');
-        }, 650);
+            section.classList.remove('scroll-unrolling-stage');
+        }, 780);
     }
 
     // 1. Intercept internal anchor links (navbar, mobile menu, hero CTAs)
