@@ -1,41 +1,89 @@
 document.addEventListener('DOMContentLoaded', () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function unfurlSection(section) {
-        if (!section) return;
+    const scrollOverlay = document.getElementById('scrollOverlay');
+    const scrollStage = document.getElementById('scrollStage');
+    const activeScrollLabel = document.getElementById('activeScrollLabel');
+    const closeScrollBtn = document.getElementById('closeScrollBtn');
+    const homeMapBtn = document.getElementById('homeMapBtn');
+    const recenterBtn = document.getElementById('recenterBtn');
+    const mobileNavBtn = document.getElementById('mobileNavBtn');
+    const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+    const panels = document.querySelectorAll('.scroll-content-panel');
 
-        section.scrollIntoView({
-            behavior: prefersReducedMotion ? 'auto' : 'smooth',
-            block: 'start'
+    const labels = {
+        about: 'SCROLL 01 // LEAF OUTPOST & DOSSIER',
+        education: 'SCROLL 02 // WITS ACADEMY & MODULES',
+        skills: 'SCROLL 03 // CHAKRA DOJO MATRIX',
+        awards: 'SCROLL 04 // HALL OF HONOURS',
+        projects: 'SCROLL 05 // COMPLETED MISSIONS',
+        contact: 'SCROLL 06 // SUMMONING SHRINE'
+    };
+
+    function showScrollForLocation(id) {
+        if (!scrollOverlay || !scrollStage) return;
+
+        panels.forEach((panel) => {
+            panel.classList.toggle('hidden', panel.getAttribute('data-panel') !== id);
         });
 
-        if (prefersReducedMotion) return;
+        if (activeScrollLabel) {
+            activeScrollLabel.textContent = labels[id] || 'SHINOBI SCROLL';
+        }
 
-        section.classList.remove('scroll-unrolling-stage');
-        void section.offsetWidth;
-        section.classList.add('scroll-unrolling-stage');
+        scrollOverlay.classList.remove('hidden');
+        scrollOverlay.scrollTop = 0;
 
-        window.clearTimeout(section._unfurlTimer);
-        section._unfurlTimer = window.setTimeout(() => {
-            section.classList.remove('scroll-unrolling-stage');
-        }, 780);
+        if (!prefersReducedMotion) {
+            scrollStage.classList.remove('scroll-panel-active');
+            void scrollStage.offsetWidth;
+            scrollStage.classList.add('scroll-panel-active');
+
+            window.clearTimeout(scrollStage._timer);
+            scrollStage._timer = window.setTimeout(() => {
+                scrollStage.classList.remove('scroll-panel-active');
+            }, 780);
+        }
     }
 
-    // 1. Intercept internal anchor links (navbar, mobile menu, hero CTAs)
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', (e) => {
-            const targetId = anchor.getAttribute('href');
-            if (!targetId || targetId === '#') return;
+    window.openLocationScroll = function (id) {
+        mobileNavDrawer?.classList.add('hidden');
+        if (window.ShinobiMap && !prefersReducedMotion) {
+            window.ShinobiMap.focusLocation(id, () => showScrollForLocation(id));
+        } else {
+            showScrollForLocation(id);
+        }
+    };
 
-            const targetSection = document.querySelector(targetId);
-            if (!targetSection) return;
+    function closeScrollToMap() {
+        if (!scrollOverlay) return;
+        scrollOverlay.classList.add('hidden');
+        window.ShinobiMap?.resetView();
+    }
 
-            e.preventDefault();
-            unfurlSection(targetSection);
+    document.querySelectorAll('.loc-pill').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const locId = btn.getAttribute('data-loc');
+            if (locId) window.openLocationScroll(locId);
         });
     });
 
-    // 2. Category Filter Buttons
+    closeScrollBtn?.addEventListener('click', closeScrollToMap);
+    homeMapBtn?.addEventListener('click', closeScrollToMap);
+    recenterBtn?.addEventListener('click', () => {
+        closeScrollToMap();
+        window.ShinobiMap?.resetView();
+    });
+
+    scrollOverlay?.addEventListener('click', (e) => {
+        if (e.target === scrollOverlay) closeScrollToMap();
+    });
+
+    mobileNavBtn?.addEventListener('click', () => {
+        mobileNavDrawer?.classList.toggle('hidden');
+    });
+
+    // Project Category Filters
     const filterButtons = document.querySelectorAll('.filter-btn');
     const projectCards = document.querySelectorAll('.project-card');
 
@@ -52,49 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active', 'bg-orange-500/15', 'text-orange-400', 'border-orange-500/40');
 
             projectCards.forEach((card) => {
-                if (filter === 'all' || card.classList.contains(filter)) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
+                card.classList.toggle('hidden', filter !== 'all' && !card.classList.contains(filter));
             });
         });
     });
 
-    // 3. Mobile Menu Toggle
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const iconOpen = document.getElementById('menuIconOpen');
-    const iconClose = document.getElementById('menuIconClose');
-
-    if (menuBtn && mobileMenu) {
-        menuBtn.addEventListener('click', () => {
-            const isHidden = mobileMenu.classList.toggle('hidden');
-            menuBtn.setAttribute('aria-expanded', String(!isHidden));
-            iconOpen?.classList.toggle('hidden', !isHidden);
-            iconClose?.classList.toggle('hidden', isHidden);
-        });
-
-        document.querySelectorAll('.mobile-nav-link').forEach((link) => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
-                menuBtn.setAttribute('aria-expanded', 'false');
-                iconOpen?.classList.remove('hidden');
-                iconClose?.classList.add('hidden');
-            });
-        });
-    }
-
-    // 4. Mission Scroll Modal
+    // Mission Detail Modal
     const modal = document.getElementById('missionModal');
-    const closeBtn = document.getElementById('closeModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
     const modalTitle = document.getElementById('modalTitle');
     const modalRank = document.getElementById('modalRank');
     const modalBrief = document.getElementById('modalBrief');
     const modalStack = document.getElementById('modalStack');
 
     projectCards.forEach((card) => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (!modal) return;
             modalTitle.textContent = card.getAttribute('data-title') || '';
             modalRank.textContent = card.getAttribute('data-rank') || '';
@@ -111,8 +132,18 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('flex');
     };
 
-    closeBtn?.addEventListener('click', hideModal);
+    closeModalBtn?.addEventListener('click', hideModal);
     modal?.addEventListener('click', (e) => {
         if (e.target === modal) hideModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (modal && !modal.classList.contains('hidden')) {
+                hideModal();
+            } else if (scrollOverlay && !scrollOverlay.classList.contains('hidden')) {
+                closeScrollToMap();
+            }
+        }
     });
 });

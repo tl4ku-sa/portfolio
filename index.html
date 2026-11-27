@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>w1zz | Shinobi ML, Optimization &amp; Security Portfolio</title>
+    <title>w1zz | Interactive Shinobi World Map</title>
 
     <!-- Google Fonts: Space Grotesk (headings) & Inter (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,6 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Custom Tailwind Theme Tokens -->
     <script>
         tailwind.config = {
             theme: {
@@ -26,8 +25,8 @@
                         display: ['Space Grotesk', 'system-ui', 'sans-serif'],
                     },
                     colors: {
-                        leafBg: '#080B12',
-                        shinobiCard: 'rgba(15, 20, 34, 0.72)',
+                        leafBg: '#070A12',
+                        scrollBg: 'rgba(13, 18, 32, 0.94)',
                         chakra: '#F97316',
                         chidori: '#22D3EE',
                         uchiha: '#A855F7',
@@ -37,14 +36,13 @@
         }
     </script>
 
-    <!-- Unrolling Scroll Animation Styles -->
     <style>
-        @keyframes scrollRollUnfurl {
+        @keyframes scrollUnroll {
             0% {
                 opacity: 0;
-                transform: translateY(-10px) scaleY(0.05);
+                transform: translateY(-16px) scaleY(0.04);
             }
-            20% {
+            18% {
                 opacity: 1;
             }
             100% {
@@ -53,55 +51,49 @@
             }
         }
 
-        @keyframes scrollRodDrop {
+        @keyframes rodSweep {
             0% {
                 top: 0;
                 opacity: 1;
-                transform: scaleX(0.45);
             }
-            85% {
-                top: calc(100% - 10px);
+            88% {
+                top: calc(100% - 12px);
                 opacity: 1;
-                transform: scaleX(1);
             }
             100% {
                 top: 100%;
                 opacity: 0;
-                transform: scaleX(1);
             }
         }
 
-        .scroll-unrolling-stage {
+        .scroll-panel-active {
             position: relative;
         }
 
-        .scroll-unrolling-stage .scroll-paper-body {
+        .scroll-panel-active .scroll-sheet {
             transform-origin: top center;
-            animation: scrollRollUnfurl 0.72s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(24, 18, 12, 0.55) 0%, rgba(15, 20, 34, 0.25) 100%);
-            box-shadow: inset 0 1px 0 rgba(251, 191, 36, 0.25), 0 18px 40px -20px rgba(0, 0, 0, 0.85);
+            animation: scrollUnroll 0.72s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
         }
 
-        .scroll-unrolling-stage::after {
+        .scroll-panel-active::after {
             content: "";
             position: absolute;
-            left: 0.5rem;
-            right: 0.5rem;
+            left: 0.75rem;
+            right: 0.75rem;
             top: 0;
-            height: 10px;
+            height: 12px;
             border-radius: 9999px;
             background: linear-gradient(90deg, #7c2d12, #f97316, #fde68a, #f97316, #7c2d12);
-            border: 1px solid rgba(253, 230, 138, 0.65);
-            box-shadow: 0 0 18px rgba(249, 115, 22, 0.85);
-            animation: scrollRodDrop 0.72s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
+            border: 1px solid rgba(253, 230, 138, 0.7);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.9);
+            animation: rodSweep 0.72s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
             pointer-events: none;
-            z-index: 30;
+            z-index: 40;
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .scroll-unrolling-stage .scroll-paper-body,
-            .scroll-unrolling-stage::after {
+            .scroll-panel-active .scroll-sheet,
+            .scroll-panel-active::after {
                 animation: none !important;
                 transform: none !important;
                 opacity: 1 !important;
@@ -109,578 +101,394 @@
         }
     </style>
 </head>
-<body class="bg-leafBg text-slate-100 font-sans relative overflow-x-hidden antialiased selection:bg-orange-500/30 selection:text-orange-200">
+<body class="bg-leafBg text-slate-100 font-sans h-screen w-screen overflow-hidden select-none antialiased selection:bg-orange-500/30 selection:text-orange-200">
 
-    <!-- Interactive Chakra & Chidori Node Canvas Background -->
-    <canvas id="nodeCanvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-45"></canvas>
+    <!-- Full-Viewport Interactive Shinobi Map Canvas -->
+    <canvas id="worldMapCanvas" class="fixed inset-0 w-full h-full z-0 cursor-grab active:cursor-grabbing"></canvas>
 
-    <!-- Sticky Shinobi Navigation Bar -->
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-[#080B12]/85 border-b border-orange-500/20 px-4 md:px-6">
-        <div class="max-w-6xl mx-auto flex justify-between items-center py-3.5">
-            <a href="#about" class="font-display text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-orange-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent">
-                &lt;LEAF // w1zz /&gt;
-            </a>
-
-            <!-- Desktop Navigation Links -->
-            <div class="hidden md:flex items-center space-x-7 text-sm font-medium text-slate-300">
-                <a href="#about" class="hover:text-orange-400 transition">About</a>
-                <a href="#education" class="hover:text-orange-400 transition">Academy</a>
-                <a href="#skills" class="hover:text-orange-400 transition">Jutsu Matrix</a>
-                <a href="#awards" class="hover:text-orange-400 transition">Honours</a>
-                <a href="#projects" class="hover:text-orange-400 transition">Missions</a>
-                <a href="#contact" class="hover:text-orange-400 transition">Scroll</a>
-                <a href="https://github.com/tl4ku-sa" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 transition">
-                    GitHub
-                </a>
-            </div>
-
-            <!-- Mobile Hamburger Button -->
-            <button id="mobileMenuBtn" type="button" aria-label="Toggle Menu" aria-expanded="false" class="md:hidden p-2 rounded-lg border border-slate-800 bg-slate-900/80 text-orange-400 hover:border-orange-500/50 transition">
-                <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-                <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+    <!-- Top Tactical HUD Bar -->
+    <header class="fixed top-0 left-0 right-0 z-30 backdrop-blur-md bg-[#070A12]/80 border-b border-orange-500/20 px-4 md:px-6 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <button id="homeMapBtn" type="button" class="font-display text-base sm:text-xl font-bold tracking-wide bg-gradient-to-r from-orange-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent text-left">
+                &lt;SHINOBI MAP // w1zz /&gt;
             </button>
+
+            <!-- Desktop Location Jump Pills -->
+            <nav aria-label="Map Locations" class="hidden lg:flex items-center gap-2 text-xs font-mono">
+                <button type="button" data-loc="about" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-orange-500/50 hover:text-orange-300 transition">
+                    Outpost
+                </button>
+                <button type="button" data-loc="education" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-orange-500/50 hover:text-orange-300 transition">
+                    Academy
+                </button>
+                <button type="button" data-loc="skills" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-cyan-500/50 hover:text-cyan-300 transition">
+                    Chakra Dojo
+                </button>
+                <button type="button" data-loc="awards" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-purple-500/50 hover:text-purple-300 transition">
+                    Honours
+                </button>
+                <button type="button" data-loc="projects" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-orange-500/50 hover:text-orange-300 transition">
+                    Missions
+                </button>
+                <button type="button" data-loc="contact" class="loc-pill px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/75 text-slate-300 hover:border-cyan-500/50 hover:text-cyan-300 transition">
+                    Summon
+                </button>
+            </nav>
+
+            <div class="flex items-center gap-2.5">
+                <button id="recenterBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 transition">
+                    Reset View
+                </button>
+                <button id="mobileNavBtn" type="button" aria-label="Open Locations" class="lg:hidden px-3 py-1.5 rounded-lg text-xs font-mono border border-orange-500/40 bg-orange-500/15 text-orange-300">
+                    Regions
+                </button>
+            </div>
         </div>
 
-        <!-- Mobile Drawer Menu -->
-        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-800/80 py-4 space-y-2 text-sm font-medium text-slate-300">
-            <a href="#about" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">About</a>
-            <a href="#education" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">Academy (Education)</a>
-            <a href="#skills" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">Jutsu Matrix (Skills)</a>
-            <a href="#awards" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">Honours &amp; Awards</a>
-            <a href="#projects" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">Missions (Projects)</a>
-            <a href="#contact" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-400 transition">Send Scroll (Contact)</a>
-            <a href="https://github.com/tl4ku-sa" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-lg text-orange-400 font-semibold">
-                GitHub (tl4ku-sa) ↗
-            </a>
+        <!-- Mobile Region Drawer -->
+        <div id="mobileNavDrawer" class="hidden lg:hidden mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono">
+            <button type="button" data-loc="about" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">🏯 Outpost</button>
+            <button type="button" data-loc="education" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">🎓 Academy</button>
+            <button type="button" data-loc="skills" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">🌀 Chakra Dojo</button>
+            <button type="button" data-loc="awards" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">📜 Honours</button>
+            <button type="button" data-loc="projects" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">🎯 Missions</button>
+            <button type="button" data-loc="contact" class="loc-pill px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/85 text-slate-200 text-left">🦅 Summon</button>
         </div>
-    </nav>
+    </header>
 
-    <!-- Hero / About Section -->
-    <section id="about" class="relative max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-24">
-        <div class="scroll-paper-body">
-            <div class="max-w-3xl">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-mono font-semibold mb-6">
-                    <span class="w-2 h-2 rounded-full bg-orange-400 animate-ping"></span>
-                    HIDDEN LEAF · BSc CS &amp; APPLIED MATH · WITS
+    <!-- Bottom Map Legend / Quick Hint -->
+    <div id="mapHudHint" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-[#0A0F1D]/85 border border-orange-500/30 backdrop-blur-md text-[11px] sm:text-xs font-mono text-slate-300 flex items-center gap-3 shadow-lg pointer-events-none">
+        <span class="text-orange-400">●</span>
+        <span>Drag map to pan · Click any landmark or region to unroll scroll</span>
+    </div>
+
+    <!-- Unrolling Scroll Overlay Container -->
+    <main id="scrollOverlay" class="fixed inset-x-0 top-16 bottom-0 z-30 hidden overflow-y-auto px-3 sm:px-6 py-6 bg-black/45 backdrop-blur-[2px]">
+        <div id="scrollStage" class="max-w-4xl mx-auto">
+            <!-- Scroll Header Bar -->
+            <div class="flex items-center justify-between gap-4 mb-4 px-4 py-3 rounded-t-2xl bg-gradient-to-r from-orange-950/80 via-[#141A2E]/95 to-orange-950/80 border border-orange-500/40">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-orange-400 shadow-[0_0_10px_#f97316]"></span>
+                    <span id="activeScrollLabel" class="font-mono text-xs uppercase tracking-widest text-orange-300 font-semibold"></span>
                 </div>
-
-                <h1 class="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
-                    Tlakusani Shibambu — <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent">Chakra Ensembles, Optimization</span> &amp; Code.
-                </h1>
-
-                <p class="text-base sm:text-lg text-slate-400 leading-relaxed mb-8">
-                    Competitive machine learning builder, mathematical optimizer, and CTF operator grounded in applied mathematics and software engineering. Forging multi-seed ensemble pipelines, constrained optimization solvers, autonomous agents, and security assessments with clean, modular code.
-                </p>
-
-                <div class="flex flex-wrap gap-4">
-                    <a href="#projects" class="px-6 py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-semibold shadow-[0_0_20px_rgba(249,115,22,0.3)] transition">
-                        Enter Mission Log
-                    </a>
-                    <a href="#contact" class="px-6 py-3 rounded-lg border border-cyan-500/40 bg-cyan-500/5 hover:border-cyan-400 text-cyan-300 font-semibold transition">
-                        Summon / Contact
-                    </a>
-                </div>
+                <button id="closeScrollBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold bg-orange-500/20 hover:bg-orange-500/35 text-orange-200 border border-orange-400/40 transition cursor-pointer">
+                    Roll Up &amp; Return ✕
+                </button>
             </div>
-        </div>
-    </section>
 
-    <!-- Telemetry & Impact Metrics -->
-    <section aria-label="Key Metrics" class="max-w-6xl mx-auto px-4 md:px-6 py-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div class="p-5 sm:p-6 rounded-xl bg-shinobiCard border border-orange-500/20 hover:border-orange-500/50 backdrop-blur-sm transition">
-                <div class="font-display text-2xl sm:text-3xl font-bold text-orange-400 mb-1">0.90</div>
-                <div class="text-xs text-slate-400">Target CV ROC-AUC</div>
-            </div>
-            <div class="p-5 sm:p-6 rounded-xl bg-shinobiCard border border-cyan-500/20 hover:border-cyan-500/50 backdrop-blur-sm transition">
-                <div class="font-display text-2xl sm:text-3xl font-bold text-cyan-400 mb-1">99.9M+</div>
-                <div class="text-xs text-slate-400">Hack&lt;IT&gt; Optimizer Score</div>
-            </div>
-            <div class="p-5 sm:p-6 rounded-xl bg-shinobiCard border border-purple-500/20 hover:border-purple-500/50 backdrop-blur-sm transition">
-                <div class="font-display text-2xl sm:text-3xl font-bold text-purple-400 mb-1">1st / 3rd</div>
-                <div class="text-xs text-slate-400">Wits Cyber Hackathon</div>
-            </div>
-            <div class="p-5 sm:p-6 rounded-xl bg-shinobiCard border border-orange-500/20 hover:border-orange-500/50 backdrop-blur-sm transition">
-                <div class="font-display text-2xl sm:text-3xl font-bold text-orange-400 mb-1">5+</div>
-                <div class="text-xs text-slate-400">Ensemble Model Families</div>
-            </div>
-        </div>
-    </section>
+            <!-- Scroll Body Sheet -->
+            <div class="scroll-sheet rounded-b-2xl border-x border-b border-orange-500/30 bg-scrollBg p-5 sm:p-8 shadow-2xl select-text">
 
-    <!-- Jutsu / Skill Radar Matrix Section -->
-    <section id="skills" class="relative max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-20">
-        <div class="scroll-paper-body">
-            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// CHAKRA NATURE &amp; STACK</div>
-            <h2 class="font-display text-3xl font-bold mb-3">Technical Proficiency Matrix</h2>
-            <p class="text-slate-400 mb-12 max-w-xl">
-                How my current training balances across machine learning ensembles, mathematical optimization, algorithms, and software/security engineering.
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
-                <div class="relative w-full max-w-md mx-auto aspect-square bg-shinobiCard p-4 sm:p-6 rounded-2xl border border-orange-500/25 backdrop-blur-sm">
-                    <canvas id="skillsRadarChart"></canvas>
-                </div>
-
-                <div class="space-y-5">
-                    <div class="p-5 rounded-xl border border-orange-500/25 bg-slate-900/50 hover:border-orange-500/60 transition">
-                        <h3 class="font-display text-lg font-semibold text-orange-400 mb-1">Shadow Clone Ensembles (Tabular ML &amp; DL)</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Multi-seed ensembles with LightGBM, CatBoost, XGBoost, ExtraTrees, MLPs, and PyTorch.
-                        </p>
-                    </div>
-
-                    <div class="p-5 rounded-xl border border-cyan-500/25 bg-slate-900/50 hover:border-cyan-500/60 transition">
-                        <h3 class="font-display text-lg font-semibold text-cyan-400 mb-1">Sage Mode Math &amp; Optimization</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Benchmark solver testing, constrained/unconstrained optimization, linear algebra, and differential equations.
-                        </p>
-                    </div>
-
-                    <div class="p-5 rounded-xl border border-purple-500/25 bg-slate-900/50 hover:border-purple-500/60 transition">
-                        <h3 class="font-display text-lg font-semibold text-purple-400 mb-1">ANBU Systems &amp; Security</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Python, Java, Git workflows, Linux/Kali tooling, web &amp; binary analysis, and clean modular code.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Honours & Awards Section (Interactive Timeline View) -->
-    <section id="awards" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
-        <div class="scroll-paper-body">
-            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// SCROLLS &amp; RECOGNITION</div>
-            <h2 class="font-display text-3xl font-bold mb-3">Honours &amp; Awards</h2>
-            <p class="text-slate-400 mb-14 max-w-xl">
-                A chronological timeline of competition wins, cyber hackathons, and scholarship recognitions.
-            </p>
-
-            <!-- Vertical Timeline Track -->
-            <div class="relative border-l-2 border-orange-500/30 ml-2 md:ml-32 space-y-8 md:space-y-12">
-
-                <!-- Timeline Item 1 -->
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-cyan-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-cyan-300 transition-colors">
-                        NOV 2026
-                    </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(34,211,238,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                            <span class="text-sm font-semibold text-cyan-400">🏆 2nd Place</span>
-                            <span class="text-xs font-mono text-slate-400">Team : NullPrior</span>
+                <!-- 1. OUTPOST (ABOUT) -->
+                <div data-panel="about" class="scroll-content-panel hidden space-y-8">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-mono font-semibold mb-4">
+                            HIDDEN LEAF · BSc CS &amp; APPLIED MATH · WITS
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">SA Community Challenge: Predictive Insights</h3>
-                        <p class="text-xs text-slate-400 mb-3">Zindi Machine Learning Competition</p>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Engineered multi-seed ensemble pipelines combining LightGBM, CatBoost, and XGBoost with out-of-fold cross-validation to secure 2nd place overall.
+                        <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight mb-4">
+                            Tlakusani Shibambu — <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent">Chakra Ensembles, Optimization</span> &amp; Code.
+                        </h1>
+                        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                            Competitive machine learning builder, mathematical optimizer, and CTF operator grounded in applied mathematics and software engineering. Forging multi-seed ensemble pipelines, constrained optimization solvers, autonomous agents, and security assessments with clean, modular code.
                         </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-orange-500/25">
+                            <div class="font-display text-2xl font-bold text-orange-400">0.89+</div>
+                            <div class="text-xs text-slate-400 mt-1">CV ROC-AUC</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/25">
+                            <div class="font-display text-2xl font-bold text-cyan-400">99.9M+</div>
+                            <div class="text-xs text-slate-400 mt-1">Hack&lt;IT&gt; Score</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-purple-500/25">
+                            <div class="font-display text-2xl font-bold text-purple-400">1st / 3rd</div>
+                            <div class="text-xs text-slate-400 mt-1">Wits Cyber Hack</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-orange-500/25">
+                            <div class="font-display text-2xl font-bold text-orange-400">5+</div>
+                            <div class="text-xs text-slate-400 mt-1">Ensemble Families</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button type="button" data-loc="projects" class="loc-pill px-5 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-semibold text-sm">
+                            Travel to Missions
+                        </button>
+                        <button type="button" data-loc="contact" class="loc-pill px-5 py-2.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-semibold text-sm">
+                            Visit Summoning Shrine
+                        </button>
                     </div>
                 </div>
 
-                <!-- Timeline Item 2 -->
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-purple-400 group-hover:scale-150 group-hover:bg-purple-400 group-hover:shadow-[0_0_12px_rgba(168,85,247,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-purple-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-purple-300 transition-colors">
-                        OCT 2026
+                <!-- 2. ACADEMY (EDUCATION) -->
+                <div data-panel="education" class="scroll-content-panel hidden space-y-6">
+                    <div>
+                        <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-1">// SHINOBI ACADEMY TRAINING</div>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold">Bachelor of Science — Wits University</h2>
+                        <p class="text-xs font-mono text-slate-400 mt-1">2024 — PRESENT · Johannesburg, SA · Computer Science &amp; Applied Mathematics</p>
                     </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-purple-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(168,85,247,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                            <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-semibold text-purple-400">
-                                <span>🏆 1st Place : Individual Solves</span>
-                                <span>🏆 3rd Place : Overall</span>
+
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Majoring in Computer Science and Applied Mathematics. Developing strong theoretical and practical problem-solving capabilities in algorithms, mathematical proof writing, optimization, and system design.
+                    </p>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="p-4 rounded-xl bg-slate-900/75 border border-cyan-500/25 space-y-2">
+                            <div class="font-display text-sm font-bold text-cyan-400">COMS — Computer Science</div>
+                            <div class="flex flex-wrap gap-2 font-mono text-slate-300">
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Database Fundamentals II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mobile Computing II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Discrete Computational Structures I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Algorithms and Programming I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Data Structures &amp; Algorithms I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Basic Computer Organisation I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Computer Networks II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Analysis of Algorithms II</span>
                             </div>
-                            <span class="text-xs font-mono text-slate-400">Team : Phish and Chips</span>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-purple-300 transition-colors">Wits Cyber Hackathon 26'</h3>
-                        <p class="text-xs text-slate-400 mb-3">Wits Cyber Hackathon</p>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Awarded 1st Place for Most Individual Solves and 3rd Place overall across an 8-day capture-the-flag challenge spanning web exploitation, cryptography, OSINT, Prompt Injection and Binary analysis.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Timeline Item 3 -->
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-orange-400 group-hover:scale-150 group-hover:bg-orange-400 group-hover:shadow-[0_0_12px_rgba(249,115,22,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-orange-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-orange-300 transition-colors">
-                        MAY 2026
-                    </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-orange-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(249,115,22,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                            <span class="text-sm font-semibold text-orange-400">🏆 Scholarship</span>
-                            <span class="text-xs font-mono text-slate-400">AWS / Udacity</span>
+                        <div class="p-4 rounded-xl bg-slate-900/75 border border-purple-500/25 space-y-2">
+                            <div class="font-display text-sm font-bold text-purple-400">CAM — Computational &amp; Applied Mathematics</div>
+                            <div class="flex flex-wrap gap-2 font-mono text-slate-300">
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Scientific Computing I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mechanics I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mathematical Methods &amp; Modelling I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Scientific Computing II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mechanics II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mathematical Methods &amp; Modelling II</span>
+                            </div>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-orange-300 transition-colors">AWS AI &amp; ML Scholars Program 26'</h3>
-                        <p class="text-xs text-slate-400 mb-3">Future AWS AI Programmer Track</p>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Selected for full scholarship track covering practical artificial intelligence, neural network architectures, and machine learning pipeline deployment.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Timeline Item 4 -->
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-cyan-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-cyan-300 transition-colors">
-                        OCT 2025
-                    </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(34,211,238,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                            <span class="text-sm font-semibold text-cyan-400">🏆 1st Place</span>
-                            <span class="text-xs font-mono text-slate-400">Team : 3ncrypt3d</span>
+                        <div class="p-4 rounded-xl bg-slate-900/75 border border-orange-500/25 space-y-2">
+                            <div class="font-display text-sm font-bold text-orange-400">INFO — Information Systems</div>
+                            <div class="flex flex-wrap gap-2 font-mono text-slate-300">
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Information Systems IA</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Information Systems IB</span>
+                            </div>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">Wits Cyber Hackathon 25'</h3>
-                        <p class="text-xs text-slate-400 mb-3">Wits University</p>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Awarded 1st Place across an 8-day capture-the-flag challenge spanning web exploitation, cryptography, OSINT, Prompt Injection and Binary analysis.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Timeline Item 5 -->
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-orange-400 group-hover:scale-150 group-hover:bg-orange-400 group-hover:shadow-[0_0_12px_rgba(249,115,22,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-orange-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-orange-300 transition-colors">
-                        FEB 2024
-                    </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-orange-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(249,115,22,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                            <span class="text-sm font-semibold text-orange-400">🏆 Academic Award</span>
-                        </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-orange-300 transition-colors">Wits University Entrance Scholarship</h3>
-                        <p class="text-xs text-slate-400 mb-3">University of the Witwatersrand</p>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            Awarded merit-based university entrance scholarship upon admission into the Bachelor of Science program in Computer Science and Applied Mathematics.
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Academy / Education Section (Timeline View) -->
-    <section id="education" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
-        <div class="scroll-paper-body">
-            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// SHINOBI ACADEMY TRAINING</div>
-            <h2 class="font-display text-3xl font-bold mb-3">Education</h2>
-            <p class="text-slate-400 mb-14 max-w-xl">
-                Academic foundation in computer science, numerical optimization, and higher mathematics.
-            </p>
-
-            <!-- Vertical Timeline Track -->
-            <div class="relative border-l-2 border-orange-500/30 ml-2 md:ml-32 space-y-8 md:space-y-12">
-
-                <div class="relative pl-6 md:pl-10 group">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-orange-400 group-hover:scale-150 group-hover:bg-orange-400 group-hover:shadow-[0_0_12px_rgba(249,115,22,0.85)] transition-all duration-300"></div>
-
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-orange-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-orange-300 transition-colors">
-                        2024 — PRESENT
-                    </div>
-
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-orange-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(249,115,22,0.25)] backdrop-blur-sm">
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                            <span class="text-sm font-semibold text-orange-400">🏆 Undergraduate Degree</span>
-                            <span class="text-xs font-mono text-slate-400">Johannesburg, SA</span>
-                        </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-orange-300 transition-colors">Bachelor of Science</h3>
-                        <p class="text-xs text-slate-400 mb-3">University of the Witwatersrand (Wits)</p>
-                        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-                            Majoring in Computer Science and Applied Mathematics. Developing strong theoretical and practical problem-solving capabilities in algorithms, mathematical proof writing, optimization, and system design.
-                        </p>
-
-                        <!-- Interactive Courses & Modules Dropdown -->
-                        <div class="border-t border-slate-800/80 pt-4 mt-4">
-                            <details class="group/dropdown border border-slate-800/90 rounded-lg bg-slate-900/60 overflow-hidden transition-all duration-300">
-                                <summary class="flex items-center justify-between px-4 py-3 cursor-pointer text-xs font-semibold text-orange-400 uppercase tracking-wider hover:bg-slate-800/50 transition">
-                                    <span class="flex items-center gap-2">
-                                        Courses &amp; Modules Breakdown
-                                    </span>
-                                    <svg class="w-4 h-4 text-slate-400 transform group-open/dropdown:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </summary>
-
-                                <div class="px-4 py-4 border-t border-slate-800/80 space-y-5 text-xs">
-                                    <!-- COMS -->
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between font-display text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-1">
-                                            <span class="text-cyan-400">COMS — Computer Science</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-2 pt-1 font-mono text-slate-300">
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Database Fundamentals II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mobile Computing II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Discrete Computational Structures I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Algorithms and Programming I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Data Structures &amp; Algorithms I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Basic Computer Organisation I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Computer Networks II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Analysis of Algorithms II</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- CAM -->
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between font-display text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-1">
-                                            <span class="text-purple-400">CAM — Computational &amp; Applied Mathematics</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-2 pt-1 font-mono text-slate-300">
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Scientific Computing I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mechanics I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mathematical Methods &amp; Modelling I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Scientific Computing II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mechanics II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Mathematical Methods &amp; Modelling II</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- INFO -->
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between font-display text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-1">
-                                            <span class="text-orange-400">INFO — Information Systems</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-2 pt-1 font-mono text-slate-300">
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Information Systems IA</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Information Systems IB</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- MATH -->
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between font-display text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-1">
-                                            <span class="text-cyan-400">MATH — Pure Mathematics &amp; Statistics</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-2 pt-1 font-mono text-slate-300">
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Calculus I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Algebra I</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Linear Algebra II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Multivariable Calculus II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Abstract Mathematics II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Basic Analysis II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Advanced Analysis II</span>
-                                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Mathematical Statistics II</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </details>
+                        <div class="p-4 rounded-xl bg-slate-900/75 border border-cyan-500/25 space-y-2">
+                            <div class="font-display text-sm font-bold text-cyan-400">MATH — Pure Mathematics &amp; Statistics</div>
+                            <div class="flex flex-wrap gap-2 font-mono text-slate-300">
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Calculus I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Algebra I</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Linear Algebra II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Multivariable Calculus II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Abstract Mathematics II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Basic Analysis II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Advanced Analysis II</span>
+                                <span class="px-2.5 py-1 bg-slate-800/90 rounded">Introduction to Mathematical Statistics II</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </section>
-
-    <!-- Missions / Projects Section (Interactive Timeline View) -->
-    <section id="projects" class="relative max-w-4xl mx-auto px-4 md:px-6 py-14 md:py-20">
-        <div class="scroll-paper-body">
-            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-2">// COMPLETED MISSIONS</div>
-            <h2 class="font-display text-3xl font-bold mb-3">Featured Projects</h2>
-            <p class="text-slate-400 mb-8">
-                Filter between machine learning/optimization missions and software/security builds. Tap any mission card to inspect its scroll brief.
-            </p>
-
-            <!-- Category Filter Buttons -->
-            <div class="flex flex-wrap gap-3 mb-12">
-                <button type="button" class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium bg-orange-500/15 text-orange-400 border border-orange-500/40 transition" data-filter="all">
-                    All Missions
-                </button>
-                <button type="button" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white transition" data-filter="ml">
-                    ML &amp; Optimization
-                </button>
-                <button type="button" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-900 text-slate-400 border border-slate-800 hover:text-white transition" data-filter="dev">
-                    Software &amp; Agents
-                </button>
-            </div>
-
-            <!-- Vertical Project Timeline Track -->
-            <div class="relative border-l-2 border-orange-500/30 ml-2 md:ml-32 space-y-8 md:space-y-12">
-
-                <!-- Project 1 -->
-                <div class="project-card ml relative pl-6 md:pl-10 group cursor-pointer"
-                     data-title="Multi-Seed Tabular Ensemble Pipeline"
-                     data-rank="S-RANK · 0.89+ CV ROC-AUC"
-                     data-brief="Multi-seed gradient boosted and neural ensemble pipeline combining LightGBM, CatBoost, XGBoost, ExtraTrees, and MLPs with out-of-fold cross-validation and probability blending."
-                     data-stack="Python, LightGBM, CatBoost, XGBoost, PyTorch">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-cyan-400 group-hover:scale-150 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-cyan-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-cyan-300 transition-colors">
-                        COMPETITIVE ML
+                <!-- 3. CHAKRA DOJO (SKILLS RADAR) -->
+                <div data-panel="skills" class="scroll-content-panel hidden space-y-6">
+                    <div>
+                        <div class="text-xs font-mono uppercase tracking-widest text-cyan-400 mb-1">// CHAKRA NATURE &amp; STACK</div>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold">Technical Proficiency Matrix</h2>
                     </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-cyan-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(34,211,238,0.25)] backdrop-blur-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-semibold text-cyan-400">🏆 0.89+ CV ROC-AUC</span>
-                            <span class="text-xs font-mono text-slate-400">2026</span>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="w-full max-w-sm mx-auto aspect-square bg-slate-900/75 p-4 rounded-2xl border border-orange-500/25">
+                            <canvas id="skillsRadarChart"></canvas>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-cyan-300 transition-colors">Multi-Seed Tabular Ensemble Pipeline</h3>
-                        <p class="text-xs text-slate-400 mb-3">Ensemble Optimization &amp; Cross-Validation</p>
-                        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-                            Multi-seed gradient boosted and neural ensemble pipeline combining LightGBM, CatBoost, XGBoost, ExtraTrees, and MLPs with out-of-fold cross-validation and probability blending.
-                        </p>
-                        <div class="flex flex-wrap gap-2 text-xs font-mono text-slate-300">
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Python</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">LightGBM</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">CatBoost</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">PyTorch</span>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl bg-slate-900/75 border border-orange-500/25">
+                                <h3 class="font-display text-base font-semibold text-orange-400 mb-1">Shadow Clone Ensembles (Tabular ML &amp; DL)</h3>
+                                <p class="text-xs sm:text-sm text-slate-300">Multi-seed ensembles with LightGBM, CatBoost, XGBoost, ExtraTrees, MLPs, and PyTorch.</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900/75 border border-cyan-500/25">
+                                <h3 class="font-display text-base font-semibold text-cyan-400 mb-1">Sage Mode Math &amp; Optimization</h3>
+                                <p class="text-xs sm:text-sm text-slate-300">Benchmark solver testing, constrained/unconstrained optimization, linear algebra, and differential equations.</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900/75 border border-purple-500/25">
+                                <h3 class="font-display text-base font-semibold text-purple-400 mb-1">ANBU Systems &amp; Security</h3>
+                                <p class="text-xs sm:text-sm text-slate-300">Python, Java, Git workflows, Linux/Kali tooling, web &amp; binary analysis, and clean modular code.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project 2 -->
-                <div class="project-card ml relative pl-6 md:pl-10 group cursor-pointer"
-                     data-title="Ecosystem Planting Strategy Engine"
-                     data-rank="S-RANK · 99.9M+ Score"
-                     data-brief="Non-linear heuristic optimization engine designed for multi-species planting under resource constraints in the Entelect Hack<IT> Community Cup, scoring 99,946,247 points."
-                     data-stack="Python, NumPy, SciPy, Heuristic Search">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-orange-400 group-hover:scale-150 group-hover:bg-orange-400 group-hover:shadow-[0_0_12px_rgba(249,115,22,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-orange-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-orange-300 transition-colors">
-                        OPTIMIZATION
+                <!-- 4. HONOURS & AWARDS -->
+                <div data-panel="awards" class="scroll-content-panel hidden space-y-5">
+                    <div>
+                        <div class="text-xs font-mono uppercase tracking-widest text-purple-400 mb-1">// SCROLLS &amp; RECOGNITION</div>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold">Honours &amp; Awards</h2>
                     </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-orange-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(249,115,22,0.25)] backdrop-blur-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-semibold text-orange-400">🏆 99.9M+ Score</span>
-                            <span class="text-xs font-mono text-slate-400">Entelect Hack&lt;IT&gt;</span>
+
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-xl bg-slate-900/80 border border-cyan-500/30">
+                            <div class="flex flex-wrap justify-between gap-2 text-xs font-mono text-cyan-400 mb-1">
+                                <span>🏆 2nd Place · NOV 2026</span>
+                                <span>Team : NullPrior</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white">SA Community Challenge: Predictive Insights</h3>
+                            <p class="text-xs text-slate-400 mb-2">Zindi Machine Learning Competition</p>
+                            <p class="text-sm text-slate-300">Engineered multi-seed ensemble pipelines combining LightGBM, CatBoost, and XGBoost with out-of-fold cross-validation to secure 2nd place overall.</p>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-orange-300 transition-colors">Ecosystem Planting Strategy Engine</h3>
-                        <p class="text-xs text-slate-400 mb-3">Multi-Species Allocation Algorithm</p>
-                        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-                            Non-linear heuristic optimization engine designed for multi-species planting under resource constraints, achieving a score of 99,946,247 points.
-                        </p>
-                        <div class="flex flex-wrap gap-2 text-xs font-mono text-slate-300">
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Python</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">NumPy</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">SciPy</span>
+
+                        <div class="p-5 rounded-xl bg-slate-900/80 border border-purple-500/30">
+                            <div class="flex flex-wrap justify-between gap-2 text-xs font-mono text-purple-400 mb-1">
+                                <span>🏆 1st Individual Solves &amp; 3rd Overall · OCT 2026</span>
+                                <span>Team : Phish and Chips</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white">Wits Cyber Hackathon 26'</h3>
+                            <p class="text-xs text-slate-400 mb-2">Wits Cyber Hackathon</p>
+                            <p class="text-sm text-slate-300">Awarded 1st Place for Most Individual Solves and 3rd Place overall across an 8-day CTF challenge spanning web exploitation, cryptography, OSINT, Prompt Injection, and Binary analysis.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-slate-900/80 border border-orange-500/30">
+                            <div class="flex flex-wrap justify-between gap-2 text-xs font-mono text-orange-400 mb-1">
+                                <span>🏆 Scholarship · MAY 2026</span>
+                                <span>AWS / Udacity</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white">AWS AI &amp; ML Scholars Program 26'</h3>
+                            <p class="text-xs text-slate-400 mb-2">Future AWS AI Programmer Track</p>
+                            <p class="text-sm text-slate-300">Selected for full scholarship track covering practical artificial intelligence, neural network architectures, and machine learning pipeline deployment.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-slate-900/80 border border-cyan-500/30">
+                            <div class="flex flex-wrap justify-between gap-2 text-xs font-mono text-cyan-400 mb-1">
+                                <span>🏆 1st Place · OCT 2025</span>
+                                <span>Team : 3ncrypt3d</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white">Wits Cyber Hackathon 25'</h3>
+                            <p class="text-xs text-slate-400 mb-2">Wits University</p>
+                            <p class="text-sm text-slate-300">Awarded 1st Place across an 8-day capture-the-flag challenge spanning web exploitation, cryptography, OSINT, Prompt Injection, and Binary analysis.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-slate-900/80 border border-orange-500/30">
+                            <div class="flex flex-wrap justify-between gap-2 text-xs font-mono text-orange-400 mb-1">
+                                <span>🏆 Academic Award · FEB 2024</span>
+                                <span>Wits University</span>
+                            </div>
+                            <h3 class="font-display text-lg font-bold text-white">Wits University Entrance Scholarship</h3>
+                            <p class="text-sm text-slate-300 mt-1">Awarded merit-based university entrance scholarship upon admission into the Bachelor of Science program in Computer Science and Applied Mathematics.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project 3 -->
-                <div class="project-card dev relative pl-6 md:pl-10 group cursor-pointer"
-                     data-title="Pathfinding Snake AI Agent"
-                     data-rank="A-RANK · Wits Server Agent"
-                     data-brief="Autonomous decision-making Snake AI agent (MyAgent extending DevelopmentAgent) developed in Java for the Wits game server arena, using pathfinding heuristics and obstacle avoidance."
-                     data-stack="Java, Pathfinding, Algorithms">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-purple-400 group-hover:scale-150 group-hover:bg-purple-400 group-hover:shadow-[0_0_12px_rgba(168,85,247,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-purple-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-purple-300 transition-colors">
-                        GAME AI &amp; JAVA
-                    </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-purple-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(168,85,247,0.25)] backdrop-blur-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-semibold text-purple-400">🏆 Wits Server Agent</span>
-                            <span class="text-xs font-mono text-slate-400">2025</span>
+                <!-- 5. MISSIONS (PROJECTS) -->
+                <div data-panel="projects" class="scroll-content-panel hidden space-y-6">
+                    <div class="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-1">// COMPLETED MISSIONS</div>
+                            <h2 class="font-display text-2xl sm:text-3xl font-bold">Featured Projects</h2>
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-purple-300 transition-colors">Pathfinding Snake AI Agent</h3>
-                        <p class="text-xs text-slate-400 mb-3">Wits Game Server Arena</p>
-                        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-                            Autonomous decision-making Snake AI agent (<code class="text-cyan-300">MyAgent</code> extending <code class="text-cyan-300">DevelopmentAgent</code>) developed in Java featuring shortest-path heuristics and dynamic obstacle avoidance.
-                        </p>
-                        <div class="flex flex-wrap gap-2 text-xs font-mono text-slate-300">
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Java</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Pathfinding</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Algorithms</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="filter-btn active px-3.5 py-1.5 rounded-lg text-xs font-mono bg-orange-500/15 text-orange-400 border border-orange-500/40" data-filter="all">All</button>
+                            <button type="button" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-mono bg-slate-900 text-slate-400 border border-slate-800" data-filter="ml">ML &amp; Opt</button>
+                            <button type="button" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-mono bg-slate-900 text-slate-400 border border-slate-800" data-filter="dev">Dev &amp; Sec</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="project-card ml p-5 rounded-xl bg-slate-900/80 border border-cyan-500/25 hover:border-cyan-400/60 cursor-pointer transition"
+                             data-title="Multi-Seed Tabular Ensemble Pipeline"
+                             data-rank="S-RANK · 0.89+ CV ROC-AUC"
+                             data-brief="Multi-seed gradient boosted and neural ensemble pipeline combining LightGBM, CatBoost, XGBoost, ExtraTrees, and MLPs with out-of-fold cross-validation and probability blending."
+                             data-stack="Python, LightGBM, CatBoost, XGBoost, PyTorch">
+                            <div class="text-xs font-mono text-cyan-400 mb-1">COMPETITIVE ML · 2026</div>
+                            <h3 class="font-display text-lg font-bold text-white mb-2">Multi-Seed Tabular Ensemble Pipeline</h3>
+                            <p class="text-xs sm:text-sm text-slate-300 mb-3">Multi-seed gradient boosted and neural ensemble pipeline combining LightGBM, CatBoost, XGBoost, ExtraTrees, and MLPs with out-of-fold cross-validation.</p>
+                            <div class="text-xs font-mono text-slate-400">Python · LightGBM · CatBoost · PyTorch</div>
+                        </div>
+
+                        <div class="project-card ml p-5 rounded-xl bg-slate-900/80 border border-orange-500/25 hover:border-orange-400/60 cursor-pointer transition"
+                             data-title="Ecosystem Planting Strategy Engine"
+                             data-rank="S-RANK · 99.9M+ Score"
+                             data-brief="Non-linear heuristic optimization engine designed for multi-species planting under resource constraints in the Entelect Hack<IT> Community Cup, scoring 99,946,247 points."
+                             data-stack="Python, NumPy, SciPy, Heuristic Search">
+                            <div class="text-xs font-mono text-orange-400 mb-1">OPTIMIZATION · Entelect Hack&lt;IT&gt;</div>
+                            <h3 class="font-display text-lg font-bold text-white mb-2">Ecosystem Planting Strategy Engine</h3>
+                            <p class="text-xs sm:text-sm text-slate-300 mb-3">Non-linear heuristic optimization engine designed for multi-species planting under resource constraints, achieving 99,946,247 points.</p>
+                            <div class="text-xs font-mono text-slate-400">Python · NumPy · SciPy</div>
+                        </div>
+
+                        <div class="project-card dev p-5 rounded-xl bg-slate-900/80 border border-purple-500/25 hover:border-purple-400/60 cursor-pointer transition"
+                             data-title="Pathfinding Snake AI Agent"
+                             data-rank="A-RANK · Wits Server Agent"
+                             data-brief="Autonomous decision-making Snake AI agent (MyAgent extending DevelopmentAgent) developed in Java for the Wits game server arena, using pathfinding heuristics and obstacle avoidance."
+                             data-stack="Java, Pathfinding, Algorithms">
+                            <div class="text-xs font-mono text-purple-400 mb-1">GAME AI &amp; JAVA · 2025</div>
+                            <h3 class="font-display text-lg font-bold text-white mb-2">Pathfinding Snake AI Agent</h3>
+                            <p class="text-xs sm:text-sm text-slate-300 mb-3">Autonomous Snake AI agent (<code class="text-cyan-300">MyAgent</code> extending <code class="text-cyan-300">DevelopmentAgent</code>) in Java with shortest-path heuristics and obstacle avoidance.</p>
+                            <div class="text-xs font-mono text-slate-400">Java · Pathfinding · Algorithms</div>
+                        </div>
+
+                        <div class="project-card dev p-5 rounded-xl bg-slate-900/80 border border-purple-500/25 hover:border-purple-400/60 cursor-pointer transition"
+                             data-title="MWR CyberSec Capstone Assessment"
+                             data-rank="A-RANK · Internship Capstone"
+                             data-brief="Web security assessment and vulnerability analysis capstone completed after MWR CyberSec's 16-week virtual internship program and hands-on security exercises."
+                             data-stack="Web Security, Linux / Kali, Vulnerability Analysis">
+                            <div class="text-xs font-mono text-purple-400 mb-1">SECURITY CAPSTONE · MWR CyberSec</div>
+                            <h3 class="font-display text-lg font-bold text-white mb-2">MWR CyberSec Capstone Assessment</h3>
+                            <p class="text-xs sm:text-sm text-slate-300 mb-3">Comprehensive web security assessment and vulnerability analysis capstone completed after MWR CyberSec's 16-week internship program.</p>
+                            <div class="text-xs font-mono text-slate-400">Web Security · Linux / Kali</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project 4 -->
-                <div class="project-card dev relative pl-6 md:pl-10 group cursor-pointer"
-                     data-title="MWR CyberSec Capstone Assessment"
-                     data-rank="A-RANK · Internship Capstone"
-                     data-brief="Web security assessment and vulnerability analysis capstone completed after MWR CyberSec's 16-week virtual internship program and hands-on security exercises."
-                     data-stack="Web Security, Linux / Kali, Vulnerability Analysis">
-                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-slate-950 border-2 border-purple-400 group-hover:scale-150 group-hover:bg-purple-400 group-hover:shadow-[0_0_12px_rgba(168,85,247,0.85)] transition-all duration-300"></div>
-                    <div class="md:absolute md:-left-36 md:top-1 text-xs font-mono text-purple-400 font-semibold mb-2 md:mb-0 md:text-right md:w-28 group-hover:text-purple-300 transition-colors">
-                        SECURITY CAPSTONE
+                <!-- 6. SUMMONING SHRINE (CONTACT) -->
+                <div data-panel="contact" class="scroll-content-panel hidden space-y-6">
+                    <div>
+                        <div class="text-xs font-mono uppercase tracking-widest text-orange-400 mb-1">// DISPATCH A SCROLL</div>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold">Summoning Shrine</h2>
+                        <p class="text-sm text-slate-300 mt-1">Want to team up for hackathons, ML challenges, or software builds? Send a scroll below.</p>
                     </div>
-                    <div class="p-6 rounded-xl bg-shinobiCard border border-slate-800/80 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:border-purple-400/60 group-hover:shadow-[0_10px_30px_-10px_rgba(168,85,247,0.25)] backdrop-blur-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-semibold text-purple-400">🏆 Internship Capstone</span>
-                            <span class="text-xs font-mono text-slate-400">MWR CyberSec</span>
+
+                    <form action="https://formsubmit.co/s.tlakusani16@gmail.com" method="POST" class="space-y-4">
+                        <input type="text" name="_honey" class="hidden" tabindex="-1" autocomplete="off">
+                        <input type="hidden" name="_captcha" value="false">
+
+                        <div>
+                            <label for="name" class="block text-xs font-mono uppercase text-slate-300 mb-1.5">Name</label>
+                            <input id="name" type="text" name="name" required placeholder="Your name" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
                         </div>
-                        <h3 class="font-display text-xl font-bold text-slate-100 mb-1 group-hover:text-purple-300 transition-colors">MWR CyberSec Capstone Assessment</h3>
-                        <p class="text-xs text-slate-400 mb-3">16-Week Cybersecurity Program</p>
-                        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-                            Comprehensive web security assessment and vulnerability analysis capstone completed at the end of MWR CyberSec's 16-week virtual internship program.
-                        </p>
-                        <div class="flex flex-wrap gap-2 text-xs font-mono text-slate-300">
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Web Security</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Linux / Kali</span>
-                            <span class="px-2.5 py-1 bg-slate-800/90 rounded">Vulnerability Analysis</span>
+                        <div>
+                            <label for="email" class="block text-xs font-mono uppercase text-slate-300 mb-1.5">Email</label>
+                            <input id="email" type="email" name="email" required placeholder="you@example.com" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500">
                         </div>
+                        <div>
+                            <label for="message" class="block text-xs font-mono uppercase text-slate-300 mb-1.5">Scroll Message</label>
+                            <textarea id="message" name="message" rows="4" required placeholder="Tell me about your mission, hackathon, or project..." class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-semibold py-3 rounded-lg transition cursor-pointer">
+                            Send Scroll
+                        </button>
+                    </form>
+
+                    <div class="pt-2 flex flex-wrap gap-5 text-xs font-mono text-slate-400">
+                        <a href="https://github.com/tl4ku-sa" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">GitHub (tl4ku-sa) ↗</a>
+                        <a href="https://www.linkedin.com/in/tl4ku" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400">LinkedIn (tl4ku) ↗</a>
                     </div>
                 </div>
 
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Mission Scroll Modal -->
-    <div id="missionModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm px-4">
-        <div class="max-w-lg w-full rounded-2xl bg-[#0D121F] border border-orange-500/40 p-6 shadow-2xl">
+    <!-- Mission Detail Modal -->
+    <div id="missionModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="max-w-lg w-full rounded-2xl bg-[#0D121F] border border-orange-500/45 p-6 shadow-2xl">
             <div class="flex items-center justify-between gap-4 mb-3">
                 <span id="modalRank" class="text-xs font-mono uppercase tracking-wider text-orange-400 font-semibold"></span>
-                <button id="closeModalBtn" type="button" aria-label="Close Mission Scroll" class="text-slate-400 hover:text-white text-lg font-bold px-2">✕</button>
+                <button id="closeModalBtn" type="button" aria-label="Close Mission Brief" class="text-slate-400 hover:text-white text-lg font-bold px-2">✕</button>
             </div>
             <h3 id="modalTitle" class="font-display text-2xl font-bold text-white mb-3"></h3>
             <p id="modalBrief" class="text-sm text-slate-300 leading-relaxed mb-5"></p>
             <div class="border-t border-slate-800 pt-4">
-                <div class="text-xs font-mono uppercase text-slate-400 mb-2">Tools &amp; Stack</div>
+                <div class="text-xs font-mono uppercase text-slate-400 mb-1">Tools &amp; Stack</div>
                 <p id="modalStack" class="text-xs font-mono text-cyan-300"></p>
             </div>
         </div>
     </div>
 
-    <!-- Contact Section -->
-    <section id="contact" class="relative max-w-2xl mx-auto px-4 md:px-6 py-14 md:py-20">
-        <div class="scroll-paper-body">
-            <div class="text-xs font-mono uppercase tracking-widest text-orange-400 text-center mb-2">// DISPATCH A SCROLL</div>
-            <h2 class="font-display text-3xl font-bold mb-3 text-center">Get in Touch</h2>
-            <p class="text-slate-400 mb-8 text-center">
-                Want to team up for hackathons, ML challenges, or software builds? Send a message below.
-            </p>
-
-            <form action="https://formsubmit.co/s.tlakusani16@gmail.com" method="POST" class="space-y-6 bg-shinobiCard p-6 sm:p-8 rounded-2xl border border-orange-500/25 backdrop-blur-sm">
-                <input type="text" name="_honey" class="hidden" tabindex="-1" autocomplete="off">
-                <input type="hidden" name="_captcha" value="false">
-
-                <div>
-                    <label for="name" class="block text-sm font-medium text-slate-300 mb-2">Name</label>
-                    <input id="name" type="text" name="name" required placeholder="Your name" class="w-full bg-slate-900/80 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition">
-                </div>
-
-                <div>
-                    <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Email</label>
-                    <input id="email" type="email" name="email" required placeholder="you@example.com" class="w-full bg-slate-900/80 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition">
-                </div>
-
-                <div>
-                    <label for="message" class="block text-sm font-medium text-slate-300 mb-2">Message</label>
-                    <textarea id="message" name="message" rows="4" required placeholder="Tell me about your mission, hackathon, or project..." class="w-full bg-slate-900/80 border border-slate-800 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition"></textarea>
-                </div>
-
-                <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-semibold py-3 rounded-lg transition cursor-pointer">
-                    Send Scroll
-                </button>
-            </form>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="border-t border-slate-800/70 py-8 px-4 md:px-6 text-center text-xs text-slate-500">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span>Hidden Leaf Tactical Portfolio · HTML, Tailwind CSS, Chart.js &amp; Vanilla JS.</span>
-            <div class="flex items-center gap-6">
-                <a href="https://github.com/tl4ku-sa" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400 transition">GitHub</a>
-                <a href="https://www.linkedin.com/in/tl4ku" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400 transition">LinkedIn</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="js/canvas.js"></script>
+    <script src="js/map.js"></script>
     <script src="js/chart.js"></script>
     <script src="js/main.js"></script>
 </body>
