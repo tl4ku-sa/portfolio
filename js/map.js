@@ -1,16 +1,16 @@
-// js/map.js - Interactive Shinobi World Map, Terrain Renderer & Camera Controller
+// js/map.js - Full Naruto / Shinobi World Map Background & Camera Controller
 (() => {
     const canvas = document.getElementById('worldMapCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
     const locations = [
-        { id: 'about',     label: 'Leaf Outpost',  tag: 'ABOUT',     x: -360, y: -110, color: '#F97316', icon: '🏯' },
-        { id: 'education', label: 'Wits Academy',  tag: 'EDUCATION', x: -120, y: -170, color: '#FBBF24', icon: '🎓' },
-        { id: 'skills',    label: 'Chakra Dojo',   tag: 'SKILLS',    x:  150, y: -120, color: '#22D3EE', icon: '🌀' },
-        { id: 'awards',    label: 'Hall of Fame',  tag: 'HONOURS',   x:  360, y:   40, color: '#A855F7', icon: '📜' },
-        { id: 'projects',  label: 'Mission Board', tag: 'PROJECTS',  x:  110, y:  165, color: '#F97316', icon: '🎯' },
-        { id: 'contact',   label: 'Summon Shrine', tag: 'CONTACT',   x: -220, y:  145, color: '#22D3EE', icon: '🦅' }
+        { id: 'about',     label: 'Leaf Outpost',  tag: 'LAND OF FIRE',   x: -340, y: -95,  color: '#F97316', icon: '🏯' },
+        { id: 'education', label: 'Wits Academy',  tag: 'NORTHERN PEAKS', x: -105, y: -165, color: '#FBBF24', icon: '🎓' },
+        { id: 'skills',    label: 'Chakra Dojo',   tag: 'CHAKRA VALLEY',  x:  155, y: -115, color: '#22D3EE', icon: '🌀' },
+        { id: 'awards',    label: 'Hall of Fame',  tag: 'ANCIENT RUINS',  x:  365, y:   45, color: '#A855F7', icon: '📜' },
+        { id: 'projects',  label: 'Mission Board', tag: 'FRONTIER POST',  x:  115, y:  165, color: '#F97316', icon: '🎯' },
+        { id: 'contact',   label: 'Summon Shrine', tag: 'SUMMON GROUNDS', x: -225, y:  145, color: '#22D3EE', icon: '🦅' }
     ];
 
     const routes = [
@@ -27,7 +27,6 @@
     let width = 0;
     let height = 0;
 
-    // Camera state in world coordinates
     const cam = {
         x: 0,
         y: 0,
@@ -45,7 +44,7 @@
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-        const baseScale = Math.min(width / 960, height / 620);
+        const baseScale = Math.min(width / 980, height / 640);
         cam.targetZoom = Math.max(0.62, Math.min(1.15, baseScale));
     }
 
@@ -73,14 +72,11 @@
     function findLocationAtScreen(sx, sy) {
         const w = screenToWorld(sx, sy);
         for (const loc of locations) {
-            const dx = w.x - loc.x;
-            const dy = w.y - loc.y;
-            if (Math.hypot(dx, dy) <= 44) return loc;
+            if (Math.hypot(w.x - loc.x, w.y - loc.y) <= 44) return loc;
         }
         return null;
     }
 
-    // Global map interface exposed to main.js
     window.ShinobiMap = {
         focusLocation(id, onArrived) {
             const loc = getLocationById(id);
@@ -95,14 +91,13 @@
             }, 340);
         },
         resetView() {
-            const baseScale = Math.min(width / 960, height / 620);
+            const baseScale = Math.min(width / 980, height / 640);
             cam.targetX = 0;
             cam.targetY = 0;
             cam.targetZoom = Math.max(0.62, Math.min(1.15, baseScale));
         }
     };
 
-    // Canvas Mouse & Interaction Handlers
     canvas.addEventListener('mousedown', (e) => {
         dragStart = { x: e.clientX, y: e.clientY };
         didPan = false;
@@ -137,14 +132,29 @@
         }
     });
 
-    function drawMapGrid() {
-        const step = 64 * cam.zoom;
+    function drawSeaAndGrid() {
+        // Deep shinobi sea gradient
+        const seaGrad = ctx.createRadialGradient(
+            width * 0.5,
+            height * 0.45,
+            50,
+            width * 0.5,
+            height * 0.5,
+            Math.max(width, height) * 0.8
+        );
+        seaGrad.addColorStop(0, '#0F1B2E');
+        seaGrad.addColorStop(0.55, '#09101D');
+        seaGrad.addColorStop(1, '#050811');
+        ctx.fillStyle = seaGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Cartographic longitude/latitude grid
+        const step = 70 * cam.zoom;
         const offsetX = ((width / 2 - cam.x * cam.zoom) % step + step) % step;
         const offsetY = ((height / 2 - cam.y * cam.zoom) % step + step) % step;
 
-        ctx.strokeStyle = 'rgba(249, 115, 22, 0.06)';
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.05)';
         ctx.lineWidth = 1;
-
         for (let x = offsetX; x < width; x += step) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
@@ -158,112 +168,141 @@
             ctx.stroke();
         }
 
-        const center = worldToScreen(0, 0);
-        [180, 340, 500].forEach((r) => {
-            ctx.beginPath();
-            ctx.arc(center.x, center.y, r * cam.zoom, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(34, 211, 238, 0.07)';
-            ctx.stroke();
-        });
+        // Compass rose in upper-right map corner
+        const cx = width - Math.max(70, width * 0.08);
+        const cy = Math.max(105, height * 0.16);
+        const cr = 26;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.28)';
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.55)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - cr - 6);
+        ctx.lineTo(cx + 5, cy - 4);
+        ctx.lineTo(cx, cy + cr + 6);
+        ctx.lineTo(cx - 5, cy - 4);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = '700 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('N', cx, cy - cr - 10);
+        ctx.restore();
     }
 
-    function drawTerrain() {
-        // 1. Leaf Outpost (-360, -110): Forest grove clusters
-        const leafPos = worldToScreen(-360, -110);
-        const groveOffsets = [
-            [-55, -25, 34], [-25, -45, 28], [15, -35, 32],
-            [-45,  22, 30], [ 25,  18, 36], [ 42, -10, 26]
+    function drawContinentAndRegions() {
+        const pts = [
+            [-540, -140], [-450, -250], [-250, -295], [-40, -280],
+            [ 160, -250], [ 360, -180], [ 510, -50],  [ 520,  110],
+            [ 410,  235], [ 210,  275], [ -20,  260], [-240,  270],
+            [-450,  210], [-560,   60]
+        ].map(([wx, wy]) => worldToScreen(wx, wy));
+
+        // Outer coastal aura
+        ctx.beginPath();
+        pts.forEach((p, i) => {
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(28, 36, 28, 0.52)';
+        ctx.fill();
+        ctx.lineWidth = 6 * cam.zoom;
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.10)';
+        ctx.stroke();
+
+        // Crisp continent border
+        ctx.lineWidth = 1.8 * cam.zoom;
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.28)';
+        ctx.stroke();
+
+        // Winding river across the Land of Fire
+        const riverPts = [
+            [-470, -20], [-320, 10], [-160, -5], [10, 45], [170, 95], [320, 145]
+        ].map(([wx, wy]) => worldToScreen(wx, wy));
+
+        ctx.beginPath();
+        riverPts.forEach((p, i) => {
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+        });
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.22)';
+        ctx.lineWidth = 3.2 * cam.zoom;
+        ctx.stroke();
+
+        // Region territory rings & labels
+        const zones = [
+            { x: -340, y: -95,  r: 125, label: 'LAND OF FIRE',   color: 'rgba(249, 115, 22, 0.08)' },
+            { x: -105, y: -165, r: 115, label: 'FROST & PEAKS',  color: 'rgba(251, 191, 36, 0.07)' },
+            { x:  155, y: -115, r: 120, label: 'CHAKRA REALM',   color: 'rgba(34, 211, 238, 0.07)' },
+            { x:  365, y:   45, r: 120, label: 'VALLEY OF END',  color: 'rgba(168, 85, 247, 0.08)' },
+            { x:  115, y:  165, r: 115, label: 'BORDER FRONTIER',color: 'rgba(249, 115, 22, 0.07)' },
+            { x: -225, y:  145, r: 115, label: 'MT. MYOBOKU',    color: 'rgba(34, 211, 238, 0.07)' }
         ];
-        groveOffsets.forEach(([ox, oy, rad]) => {
+
+        zones.forEach((z) => {
+            const p = worldToScreen(z.x, z.y);
             ctx.beginPath();
-            ctx.arc(leafPos.x + ox * cam.zoom, leafPos.y + oy * cam.zoom, rad * cam.zoom, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.065)';
+            ctx.arc(p.x, p.y, z.r * cam.zoom, 0, Math.PI * 2);
+            ctx.fillStyle = z.color;
             ctx.fill();
-            ctx.strokeStyle = 'rgba(249, 115, 22, 0.14)';
-            ctx.lineWidth = 1 * cam.zoom;
+            ctx.setLineDash([4, 6]);
+            ctx.strokeStyle = 'rgba(226, 232, 240, 0.12)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.font = `700 ${Math.max(8, Math.round(9 * cam.zoom))}px monospace`;
+            ctx.fillStyle = 'rgba(226, 232, 240, 0.28)';
+            ctx.textAlign = 'center';
+            ctx.fillText(z.label, p.x, p.y - (z.r - 14) * cam.zoom);
+        });
+
+        // Forest tree clusters around Leaf Outpost
+        const leaf = worldToScreen(-340, -95);
+        const trees = [
+            [-75, -35], [-50, -55], [-20, -45], [55, -25],
+            [-65,  30], [-30,  45], [ 45,  32], [68,   8]
+        ];
+        trees.forEach(([ox, oy], idx) => {
+            const tx = leaf.x + ox * cam.zoom;
+            const ty = leaf.y + oy * cam.zoom;
+            const s = (9 + (idx % 3) * 2) * cam.zoom;
+            ctx.beginPath();
+            ctx.moveTo(tx, ty - s);
+            ctx.lineTo(tx + s * 0.8, ty + s * 0.65);
+            ctx.lineTo(tx - s * 0.8, ty + s * 0.65);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(134, 239, 172, 0.25)';
+            ctx.lineWidth = 1;
             ctx.stroke();
         });
 
-        // 2. Wits Academy (-120, -170): Mountain ridge peaks
-        const acadPos = worldToScreen(-120, -170);
-        const peaks = [
-            [-68, 12, -38, -28, -8, 12],
-            [-18, 14,  18, -36, 54, 14],
-            [ 28, 12,  62, -20, 92, 12]
+        // Mountain peaks near Wits Academy
+        const acad = worldToScreen(-105, -165);
+        const mtn = [
+            [-82, 22, -52, -26, -22, 22],
+            [-28, 24,  10, -34,  48, 24],
+            [ 34, 22,  68, -18, 102, 22]
         ];
-        peaks.forEach(([x1, y1, x2, y2, x3, y3]) => {
+        mtn.forEach(([x1, y1, x2, y2, x3, y3]) => {
             ctx.beginPath();
-            ctx.moveTo(acadPos.x + x1 * cam.zoom, acadPos.y + y1 * cam.zoom);
-            ctx.lineTo(acadPos.x + x2 * cam.zoom, acadPos.y + y2 * cam.zoom);
-            ctx.lineTo(acadPos.x + x3 * cam.zoom, acadPos.y + y3 * cam.zoom);
+            ctx.moveTo(acad.x + x1 * cam.zoom, acad.y + y1 * cam.zoom);
+            ctx.lineTo(acad.x + x2 * cam.zoom, acad.y + y2 * cam.zoom);
+            ctx.lineTo(acad.x + x3 * cam.zoom, acad.y + y3 * cam.zoom);
             ctx.closePath();
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.06)';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.14)';
             ctx.fill();
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.18)';
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.26)';
             ctx.lineWidth = 1.2 * cam.zoom;
             ctx.stroke();
         });
-
-        // 3. Chakra Dojo (150, -120): Swirling chakra vortex arcs
-        const dojoPos = worldToScreen(150, -120);
-        [44, 72, 100].forEach((ringR, idx) => {
-            ctx.beginPath();
-            ctx.arc(
-                dojoPos.x,
-                dojoPos.y,
-                ringR * cam.zoom,
-                pulsePhase * (idx % 2 === 0 ? 0.6 : -0.5),
-                pulsePhase * (idx % 2 === 0 ? 0.6 : -0.5) + Math.PI * 1.35
-            );
-            ctx.strokeStyle = `rgba(34, 211, 238, ${0.18 - idx * 0.04})`;
-            ctx.lineWidth = 1.4 * cam.zoom;
-            ctx.stroke();
-        });
-
-        // 4. Hall of Fame (360, 40): Hexagonal plateau seal
-        const hallPos = worldToScreen(360, 40);
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i + 0.25;
-            const hx = hallPos.x + Math.cos(angle) * 76 * cam.zoom;
-            const hy = hallPos.y + Math.sin(angle) * 76 * cam.zoom;
-            if (i === 0) ctx.moveTo(hx, hy);
-            else ctx.lineTo(hx, hy);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(168, 85, 247, 0.06)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.22)';
-        ctx.lineWidth = 1.4 * cam.zoom;
-        ctx.stroke();
-
-        // 5. Mission Board (110, 165): Tactical contour / canyon arcs
-        const missPos = worldToScreen(110, 165);
-        [42, 68, 94].forEach((r, i) => {
-            ctx.beginPath();
-            ctx.ellipse(missPos.x, missPos.y, r * 1.25 * cam.zoom, r * 0.72 * cam.zoom, -0.18, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(249, 115, 22, ${0.15 - i * 0.03})`;
-            ctx.lineWidth = 1.1 * cam.zoom;
-            ctx.stroke();
-        });
-
-        // 6. Summon Shrine (-220, 145): Summoning circle & inner cross-sigil
-        const shrinePos = worldToScreen(-220, 145);
-        const sRad = 66 * cam.zoom;
-        ctx.beginPath();
-        ctx.arc(shrinePos.x, shrinePos.y, sRad, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.22)';
-        ctx.lineWidth = 1.3 * cam.zoom;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(shrinePos.x - sRad * 0.75, shrinePos.y);
-        ctx.lineTo(shrinePos.x + sRad * 0.75, shrinePos.y);
-        ctx.moveTo(shrinePos.x, shrinePos.y - sRad * 0.75);
-        ctx.lineTo(shrinePos.x, shrinePos.y + sRad * 0.75);
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.12)';
-        ctx.lineWidth = 1 * cam.zoom;
-        ctx.stroke();
     }
 
     function drawRoutes() {
@@ -278,7 +317,7 @@
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.22)';
             ctx.lineWidth = 1.5 * cam.zoom;
             ctx.setLineDash([6, 6]);
             ctx.stroke();
@@ -289,7 +328,7 @@
             const py = p1.y + (p2.y - p1.y) * t;
 
             ctx.beginPath();
-            ctx.arc(px, py, 2.6 * cam.zoom, 0, Math.PI * 2);
+            ctx.arc(px, py, 3 * cam.zoom, 0, Math.PI * 2);
             ctx.fillStyle = '#22D3EE';
             ctx.fill();
         });
@@ -304,7 +343,7 @@
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, r * 1.45 * pulse, 0, Math.PI * 2);
-            ctx.fillStyle = loc.color + '1A';
+            ctx.fillStyle = loc.color + '22';
             ctx.fill();
 
             ctx.beginPath();
@@ -338,14 +377,8 @@
 
         ctx.clearRect(0, 0, width, height);
 
-        const bgGrad = ctx.createRadialGradient(width * 0.5, height * 0.45, 40, width * 0.5, height * 0.5, Math.max(width, height) * 0.75);
-        bgGrad.addColorStop(0, '#12182B');
-        bgGrad.addColorStop(1, '#06080E');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, width, height);
-
-        drawMapGrid();
-        drawTerrain();
+        drawSeaAndGrid();
+        drawContinentAndRegions();
         drawRoutes();
         drawLandmarks();
 
