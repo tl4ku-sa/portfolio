@@ -1,17 +1,17 @@
-// js/map.js - Shinobi Continent Map (assets/shinobi-continent.jpg) with Pan, Zoom & Pins
+// js/map.js - Full-Viewport Stretched Shinobi Continent Map & Interactive Pins
 (() => {
     const canvas = document.getElementById('worldMapCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // World coordinates relative to the center of shinobi-continent.jpg
+    // Normalized coordinates (-0.5 to +0.5) relative to the stretched map width/height
     const locations = [
-        { id: 'about',     label: 'Leaf Outpost',  tag: 'HIDDEN LEAF',   x:  -20, y:  -25, color: '#F97316', icon: '🏯' },
-        { id: 'education', label: 'Wits Academy',  tag: 'HIDDEN CLOUD',  x:  -25, y: -235, color: '#FBBF24', icon: '🎓' },
-        { id: 'skills',    label: 'Chakra Dojo',   tag: 'STONE PEAKS',   x: -220, y: -105, color: '#22D3EE', icon: '🌀' },
-        { id: 'awards',    label: 'Hall of Fame',  tag: 'VALLEY OF END', x:  215, y:  145, color: '#A855F7', icon: '📜' },
-        { id: 'projects',  label: 'Mission Board', tag: 'HIDDEN SAND',   x:  210, y:  -35, color: '#F97316', icon: '🎯' },
-        { id: 'contact',   label: 'Summon Shrine', tag: 'HIDDEN MIST',   x: -115, y:  140, color: '#22D3EE', icon: '🦅' }
+        { id: 'about',     label: 'Leaf Outpost',  tag: 'HIDDEN LEAF',   nx: -0.02, ny: -0.03, color: '#F97316', icon: '🏯' },
+        { id: 'education', label: 'Wits Academy',  tag: 'HIDDEN CLOUD',  nx: -0.03, ny: -0.29, color: '#FBBF24', icon: '🎓' },
+        { id: 'skills',    label: 'Chakra Dojo',   tag: 'STONE PEAKS',   nx: -0.25, ny: -0.13, color: '#22D3EE', icon: '🌀' },
+        { id: 'awards',    label: 'Hall of Fame',  tag: 'VALLEY OF END', nx:  0.24, ny:  0.18, color: '#A855F7', icon: '📜' },
+        { id: 'projects',  label: 'Mission Board', tag: 'HIDDEN SAND',   nx:  0.23, ny: -0.04, color: '#F97316', icon: '🎯' },
+        { id: 'contact',   label: 'Summon Shrine', tag: 'HIDDEN MIST',   nx: -0.13, ny:  0.17, color: '#22D3EE', icon: '🦅' }
     ];
 
     const routes = [
@@ -29,61 +29,25 @@
 
     mapImg.onload = () => {
         imgLoaded = true;
-        resetCamera();
     };
 
     let width = 0;
     let height = 0;
-
-    const cam = {
-        x: 0,
-        y: 0,
-        zoom: 1,
-        targetX: 0,
-        targetY: 0,
-        targetZoom: 1
-    };
-
-    let dragStart = null;
-    let didPan = false;
     let hoveredLoc = null;
     let pulsePhase = 0;
-
-    function computeFitZoom() {
-        if (!imgLoaded || !mapImg.naturalWidth || !mapImg.naturalHeight) {
-            return Math.max(0.65, Math.min(1.15, Math.min(width / 900, height / 750)));
-        }
-        const scaleX = (width * 0.92) / mapImg.naturalWidth;
-        const scaleY = (height * 0.86) / mapImg.naturalHeight;
-        return Math.max(0.45, Math.min(1.25, Math.min(scaleX, scaleY)));
-    }
-
-    function resetCamera() {
-        cam.targetX = 0;
-        cam.targetY = 0;
-        cam.targetZoom = computeFitZoom();
-    }
 
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-        cam.targetZoom = computeFitZoom();
     }
 
     window.addEventListener('resize', resize);
     resize();
 
-    function worldToScreen(wx, wy) {
+    function normToScreen(nx, ny) {
         return {
-            x: width / 2 + (wx - cam.x) * cam.zoom,
-            y: height / 2 + (wy - cam.y) * cam.zoom
-        };
-    }
-
-    function screenToWorld(sx, sy) {
-        return {
-            x: (sx - width / 2) / cam.zoom + cam.x,
-            y: (sy - height / 2) / cam.zoom + cam.y
+            x: width * (0.5 + nx),
+            y: height * (0.5 + ny)
         };
     }
 
@@ -92,9 +56,12 @@
     }
 
     function findLocationAtScreen(sx, sy) {
-        const w = screenToWorld(sx, sy);
+        const hitRadius = Math.max(28, Math.min(44, Math.min(width, height) * 0.055));
         for (const loc of locations) {
-            if (Math.hypot(w.x - loc.x, w.y - loc.y) <= 42) return loc;
+            const p = normToScreen(loc.nx, loc.ny);
+            if (Math.hypot(sx - p.x, sy - p.y) <= hitRadius) {
+                return loc;
+            }
         }
         return null;
     }
@@ -103,48 +70,21 @@
         focusLocation(id, onArrived) {
             const loc = getLocationById(id);
             if (!loc) return;
-            cam.targetX = loc.x;
-            cam.targetY = loc.y;
-            cam.targetZoom = Math.max(1.05, Math.min(1.45, width < 640 ? 0.95 : 1.25));
-
-            window.clearTimeout(window.ShinobiMap._arriveTimer);
-            window.ShinobiMap._arriveTimer = window.setTimeout(() => {
-                if (typeof onArrived === 'function') onArrived(loc);
-            }, 340);
+            if (typeof onArrived === 'function') {
+                onArrived(loc);
+            }
         },
         resetView() {
-            resetCamera();
+            hoveredLoc = null;
         }
     };
 
-    canvas.addEventListener('mousedown', (e) => {
-        dragStart = { x: e.clientX, y: e.clientY };
-        didPan = false;
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (dragStart) {
-            const dx = e.clientX - dragStart.x;
-            const dy = e.clientY - dragStart.y;
-            if (Math.hypot(dx, dy) > 5) {
-                didPan = true;
-                cam.targetX -= dx / cam.zoom;
-                cam.targetY -= dy / cam.zoom;
-                cam.targetX = Math.max(-420, Math.min(420, cam.targetX));
-                cam.targetY = Math.max(-380, Math.min(380, cam.targetY));
-                dragStart = { x: e.clientX, y: e.clientY };
-            }
-        }
+    canvas.addEventListener('mousemove', (e) => {
         hoveredLoc = findLocationAtScreen(e.clientX, e.clientY);
-        canvas.style.cursor = hoveredLoc ? 'pointer' : 'grab';
-    });
-
-    window.addEventListener('mouseup', () => {
-        dragStart = null;
+        canvas.style.cursor = hoveredLoc ? 'pointer' : 'default';
     });
 
     canvas.addEventListener('click', (e) => {
-        if (didPan) return;
         const hit = findLocationAtScreen(e.clientX, e.clientY);
         if (hit && typeof window.openLocationScroll === 'function') {
             window.openLocationScroll(hit.id);
@@ -157,42 +97,44 @@
 
         if (!imgLoaded) return;
 
-        const topLeft = worldToScreen(-mapImg.naturalWidth / 2, -mapImg.naturalHeight / 2);
-        const drawW = mapImg.naturalWidth * cam.zoom;
-        const drawH = mapImg.naturalHeight * cam.zoom;
+        // Stretch image to fill the full viewport
+        ctx.drawImage(mapImg, 0, 0, width, height);
 
-        ctx.drawImage(mapImg, topLeft.x, topLeft.y, drawW, drawH);
-
+        // Subtle dark tactical overlay so pins & text stay legible
         ctx.fillStyle = 'rgba(7, 10, 18, 0.22)';
         ctx.fillRect(0, 0, width, height);
     }
 
     function drawChakraPulses() {
+        const dotR = Math.max(2.2, Math.min(4, Math.min(width, height) * 0.004));
+
         routes.forEach(([fromId, toId], idx) => {
             const a = getLocationById(fromId);
             const b = getLocationById(toId);
             if (!a || !b) return;
 
-            const p1 = worldToScreen(a.x, a.y);
-            const p2 = worldToScreen(b.x, b.y);
+            const p1 = normToScreen(a.nx, a.ny);
+            const p2 = normToScreen(b.nx, b.ny);
 
             const t = ((pulsePhase * 0.32 + idx * 0.19) % 1 + 1) % 1;
             const px = p1.x + (p2.x - p1.x) * t;
             const py = p1.y + (p2.y - p1.y) * t;
 
             ctx.beginPath();
-            ctx.arc(px, py, 3.2 * cam.zoom, 0, Math.PI * 2);
+            ctx.arc(px, py, dotR, 0, Math.PI * 2);
             ctx.fillStyle = '#22D3EE';
             ctx.fill();
         });
     }
 
     function drawPins() {
+        const baseR = Math.max(15, Math.min(22, Math.min(width, height) * 0.026));
+
         locations.forEach((loc) => {
-            const p = worldToScreen(loc.x, loc.y);
+            const p = normToScreen(loc.nx, loc.ny);
             const isHovered = hoveredLoc && hoveredLoc.id === loc.id;
-            const pulse = 1 + Math.sin(pulsePhase * 3 + loc.x * 0.01) * 0.14;
-            const r = (isHovered ? 24 : 19) * cam.zoom;
+            const pulse = 1 + Math.sin(pulsePhase * 3 + loc.nx * 10) * 0.14;
+            const r = isHovered ? baseR * 1.2 : baseR;
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, r * 1.45 * pulse, 0, Math.PI * 2);
@@ -207,35 +149,32 @@
             ctx.strokeStyle = loc.color;
             ctx.stroke();
 
-            ctx.font = `${Math.round(14 * cam.zoom)}px sans-serif`;
+            ctx.font = `${Math.round(r * 0.72)}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(loc.icon, p.x, p.y + 1);
 
-            const titleText = loc.label;
-            ctx.font = `700 ${Math.round(11 * cam.zoom)}px "Space Grotesk", sans-serif`;
-            const textW = ctx.measureText(titleText).width + 14 * cam.zoom;
-            const pillH = 18 * cam.zoom;
-            const pillY = p.y + r + 6 * cam.zoom;
+            const fontSize = Math.max(10, Math.min(12, Math.round(r * 0.58)));
+            ctx.font = `700 ${fontSize}px "Space Grotesk", sans-serif`;
+            const textW = ctx.measureText(loc.label).width + 12;
+            const pillH = fontSize + 7;
+            const pillY = p.y + r + 5;
 
-            ctx.fillStyle = 'rgba(7, 10, 18, 0.86)';
+            ctx.fillStyle = 'rgba(7, 10, 18, 0.88)';
             ctx.fillRect(p.x - textW / 2, pillY, textW, pillH);
             ctx.strokeStyle = loc.color + '88';
             ctx.lineWidth = 1;
             ctx.strokeRect(p.x - textW / 2, pillY, textW, pillH);
 
             ctx.fillStyle = '#F8FAFC';
-            ctx.fillText(titleText, p.x, pillY + pillH / 2 + 0.5);
+            ctx.fillText(loc.label, p.x, pillY + pillH / 2 + 0.5);
         });
     }
 
     function render() {
         pulsePhase += 0.016;
-        cam.x += (cam.targetX - cam.x) * 0.09;
-        cam.y += (cam.targetY - cam.y) * 0.09;
-        cam.zoom += (cam.targetZoom - cam.zoom) * 0.09;
-
         ctx.clearRect(0, 0, width, height);
+
         drawMapImage();
         drawChakraPulses();
         drawPins();
